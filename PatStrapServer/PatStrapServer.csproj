@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CoreOSC" Version="1.0.0" />
       <PackageReference Include="Makaretu.Dns.Multicast" Version="0.27.0" />
       <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
       <PackageReference Include="VRCOscLib" Version="1.4.3" />
