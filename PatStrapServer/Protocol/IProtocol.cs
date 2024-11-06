@@ -8,5 +8,5 @@ public interface IProtocol
     public Service? ServiceInstance { get; set; }
     
     // Do some protocol work 
-    public Task DoWork(Service service);
+    public Task DoWork();
 }

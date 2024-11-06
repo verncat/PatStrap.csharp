@@ -65,7 +65,7 @@ public class Service
     {
         if (IsRunning)
         {
-            await _proto.DoWork(this);
+            await _proto.DoWork();
         }
     }
 

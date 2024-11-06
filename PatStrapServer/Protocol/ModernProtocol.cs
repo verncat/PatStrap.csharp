@@ -7,7 +7,7 @@ public class ModernProtocol: IProtocol
 {
     public Service? ServiceInstance { get; set; }
 
-    public Task DoWork(Service service)
+    public Task DoWork()
     {
         throw new NotImplementedException();
     }
