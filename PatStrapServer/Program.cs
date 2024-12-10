@@ -48,11 +48,11 @@ class Program
 
         oscService.OnHapticTrigger += (sender, args) =>
         {
-            if (args.ContactName == "PatLeft")
+            if (args.ContactName == "pat_left")
             {
                 patstrapService?.SetHapticValue(HapticAreaType.LeftEar, args.Value);
             }
-            if (args.ContactName == "PatRight")
+            if (args.ContactName == "pat_right")
             {
                 patstrapService?.SetHapticValue(HapticAreaType.RightEar, args.Value);
             }
