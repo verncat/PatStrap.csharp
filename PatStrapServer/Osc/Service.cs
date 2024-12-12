@@ -1,6 +1,9 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using BuildSoft.OscCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using PatStrapServer.PatStrap;
 using VRC.OSCQuery;
 
@@ -12,16 +15,23 @@ public class HapticTriggerEventArgs(string name, float value)
     public readonly float Value = value;
 };
 
-public class Service
+public class Service : BackgroundService
 {
     public delegate void HapticTriggerEvent(object sender, HapticTriggerEventArgs e);
 
     public event HapticTriggerEvent? OnHapticTrigger;
+
+    private ILogger<Service> _logger;
     
     private OscServer _oscReceiver;
+    private OscClient? _oscSender = null;
+    private Stopwatch _batterySenderTimer = new Stopwatch();
     
-    public Service()
+    public Service(ILogger<Service> logger)
     {
+        _logger = logger;
+        _batterySenderTimer.Start();
+        Register();
     }
 
     private static IPAddress GetLocalIpAddress() 
@@ -36,6 +46,16 @@ public class Service
 
         // Get the IP address of the first IPv4 network interface found on the local machine
         return Dns.GetHostEntry(hostName).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+    }
+
+    public void Run(PatStrap.Service service)
+    {
+        if (_batterySenderTimer.ElapsedMilliseconds < 10_000)
+            return;
+        
+        _oscSender?.Send("/avatar/parameters/patstrap_battery_value", service.BatteryLevel / 100.0f);
+        
+        _batterySenderTimer.Restart();
     }
 
     public void Register()
@@ -56,9 +76,12 @@ public class Service
         oscQuery.RefreshServices();
         
         // Manually logging the ports to see them without a logger
-        Console.WriteLine($"Started OSCQueryService at TCP {oscQuery.TcpPort}, UDP {oscQuery.OscPort}");
+        _logger.LogInformation($"Started OSCQueryService at TCP {oscQuery.TcpPort}, UDP {oscQuery.OscPort}");
         
-        _oscReceiver = OscServer.GetOrCreate(udpPort);
+        _oscReceiver = OscServer.GetOrCreate(udpPort); 
+        
+        _oscSender = new OscClient("127.0.0.1", 9000);
+
         
         oscQuery.AddEndpoint<float>("/avatar/parameters/pat_right", Attributes.AccessValues.WriteOnly);
         _oscReceiver.TryAddMethod("/avatar/parameters/pat_right",
@@ -66,7 +89,7 @@ public class Service
             {
                 var value = message.ReadFloatElement(0);
                 OnHapticTrigger?.Invoke(this, new HapticTriggerEventArgs("pat_right", value));
-                Console.WriteLine($"pat_right {value}");
+                _logger.LogDebug($"pat_right {value}");
             }
         );
         
@@ -76,15 +99,26 @@ public class Service
             {
                 var value = message.ReadFloatElement(0);
                 OnHapticTrigger?.Invoke(this, new HapticTriggerEventArgs("pat_left", value));
-                Console.WriteLine($"pat_left {value}");
+                _logger.LogDebug($"pat_left {value}");
             }
         );
+
+        oscQuery.OnOscServiceAdded += profile =>
+        {
+            _logger.LogInformation($"New Osc Service: {profile.name}");
+
+        };
         
         oscQuery.OnOscQueryServiceAdded += async (OSCQueryServiceProfile  profile) =>
         {
-            Console.WriteLine($"New QS: {profile.name}");
+            _logger.LogInformation($"New QS: {profile.name}");
             // var tree = await Extensions.GetOSCTree(profile.address, profile.port);
             // Console.WriteLine(tree);
         };
+    }
+
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        return Task.CompletedTask;
     }
 }

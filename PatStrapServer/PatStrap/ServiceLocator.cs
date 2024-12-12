@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Makaretu.Dns;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace PatStrapServer.PatStrap;
 
@@ -21,24 +23,16 @@ public class PatStrapModernServiceInfo(string ipAddress, ushort port) : BasePatS
     public const string ServiceInstanceDefaultDomain = "patstrap." + ServiceDefaultDomain;
 }
 
-public class ServiceLocator
+public class ServiceLocator(ILogger<ServiceLocator> logger) : BackgroundService
 {
     public delegate void PatstrapServiceLocatedEvent(object sender, BasePatStrapServiceInfo e);
 
     public event PatstrapServiceLocatedEvent? PatstrapServiceLocated;
 
-    private readonly MulticastService _multicastService;
-    private readonly ServiceDiscovery _serviceDiscovery;
+    private MulticastService? _multicastService;
+    private ServiceDiscovery? _serviceDiscovery;
 
     private BasePatStrapServiceInfo? _serviceInLocate = null;
-
-    public ServiceLocator()
-    {
-        _multicastService = new MulticastService();
-        _serviceDiscovery = new ServiceDiscovery(_multicastService);
-
-        RegisterListeners();
-    }
 
     private static bool IsServiceName(DomainName name)
     {
@@ -52,8 +46,11 @@ public class ServiceLocator
                name == PatStrapModernServiceInfo.ServiceInstanceDefaultDomain;
     }
 
-    private void RegisterListeners()
+    public void RegisterListeners()
     {
+        _multicastService = new MulticastService();
+        _serviceDiscovery = new ServiceDiscovery(_multicastService);
+        
         _serviceDiscovery.ServiceDiscovered += (s, serviceName) =>
         {
             if (!IsServiceName(serviceName))
@@ -70,7 +67,7 @@ public class ServiceLocator
                 if (!IsServiceName(ptr.Name) && !IsServiceInstanceName(ptr.DomainName)) 
                     continue;
 
-                Console.WriteLine($"PatStrap service resolved. Send QU to PatStrap ({ptr.DomainName})");
+                logger.LogInformation($"PatStrap service resolved. Send QU to PatStrap ({ptr.DomainName})");
                 _multicastService.SendQuery(ptr.DomainName, type: DnsType.SRV);
             }
 
@@ -93,7 +90,7 @@ public class ServiceLocator
             {
                 if (addr.Name != "patstrap.local" || _serviceInLocate == null) continue;
 
-                Console.WriteLine($"Got IPv4 {addr.Address}");
+                logger.LogInformation($"Got IPv4 {addr.Address}");
                 _serviceInLocate.IpAddress = addr.Address.ToString();
 
                 PatstrapServiceLocated?.Invoke(this, _serviceInLocate);
@@ -104,7 +101,7 @@ public class ServiceLocator
             {
                 if (addr.Name != "patstrap.local" || _serviceInLocate == null) continue;
 
-                Console.WriteLine($"Got IPv6 {addr.Address}");
+                logger.LogInformation($"Got IPv6 {addr.Address}");
                 _serviceInLocate.IpAddress = addr.Address.ToString();
 
                 PatstrapServiceLocated?.Invoke(this, _serviceInLocate);
@@ -114,6 +111,7 @@ public class ServiceLocator
         {
             _serviceDiscovery.QueryAllServices();
         };
+        _multicastService.Start();
     }
 
     public void Start()
@@ -124,5 +122,10 @@ public class ServiceLocator
     ~ServiceLocator()
     {
         _multicastService.Stop();
+    }
+
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        return Task.CompletedTask;
     }
 }

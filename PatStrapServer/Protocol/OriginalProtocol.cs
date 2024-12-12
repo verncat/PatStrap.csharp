@@ -49,7 +49,6 @@ public class OriginalProtocol: IProtocol
         // Retrieve battery level
         var batteryLevel = await ReadBatteryLevelAsync(ServiceInstance!._socket!);
         ServiceInstance!._batteryLevel = batteryLevel;
-        Console.WriteLine($"Battery: {(int)batteryLevel}%");
 
         // Send haptics state if not sent previously
         var leftEarHaptic = ServiceInstance!.Haptics[HapticAreaType.LeftEar];
