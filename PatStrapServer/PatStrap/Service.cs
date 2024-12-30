@@ -59,19 +59,20 @@ public class Service(ILogger<Service> logger) : BackgroundService
         Haptics[areaType].Value = value;
     }
     
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Task.Yield();
-        while (!stoppingToken.IsCancellationRequested)
+        return Task.Run(async () =>
         {
-            if (!IsRunning)
-                continue;
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                if (!IsRunning)
+                    continue;
         
-            await DoWork();
+                await DoWork();
             
-            logger.LogInformation($"Battery: {BatteryLevel}%");
-        }        
-        await Task.CompletedTask;
+                logger.LogInformation($"Battery: {BatteryLevel}%");
+            }        
+        }, stoppingToken);
     }
     
     public async Task DoWork()

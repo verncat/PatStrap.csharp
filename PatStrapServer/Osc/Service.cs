@@ -119,6 +119,16 @@ public class Service : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return Task.CompletedTask;
+        var f = this;
+        return Task.Run(async () =>
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("1");
+                OnHapticTrigger?.Invoke(f, new HapticTriggerEventArgs("pat_right", 1));
+                await Task.Delay(1000, stoppingToken);
+            }        
+        }, stoppingToken);
+        // return Task.CompletedTask;
     }
 }
