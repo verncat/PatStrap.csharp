@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ public sealed class Worker(ILogger<Worker> logger,
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var power = Math.Clamp(!string.IsNullOrEmpty(appConfig["power"]) ? float.Parse(appConfig["power"]): 1f , 0, 1);
+        var power = Math.Clamp(!string.IsNullOrEmpty(appConfig["power"]) ? float.Parse(appConfig["power"], CultureInfo.InvariantCulture): 1f , 0, 1);
         
         if (!stoppingToken.IsCancellationRequested)
         {
