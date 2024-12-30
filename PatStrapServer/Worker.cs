@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PatStrapServer.PatStrap;
@@ -9,11 +10,14 @@ namespace PatStrapServer;
 public sealed class Worker(ILogger<Worker> logger, 
                             PatStrap.Service patService, 
                             PatStrap.ServiceLocator patServiceLocator, 
-                            Osc.Service oscService) : BackgroundService
+                            Osc.Service oscService,
+                            IConfiguration appConfig) : BackgroundService
 {
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var power = Math.Clamp(!string.IsNullOrEmpty(appConfig["power"]) ? float.Parse(appConfig["power"]): 1f , 0, 1);
+        
         if (!stoppingToken.IsCancellationRequested)
         {
             logger.LogInformation("Worker started!");
@@ -43,11 +47,11 @@ public sealed class Worker(ILogger<Worker> logger,
             {
                 if (args.ContactName == "pat_left")
                 {
-                    patService.SetHapticValue(HapticAreaType.LeftEar, args.Value);
+                    patService.SetHapticValue(HapticAreaType.LeftEar, args.Value * power);
                 }
                 if (args.ContactName == "pat_right")
                 {
-                    patService.SetHapticValue(HapticAreaType.RightEar, args.Value);
+                    patService.SetHapticValue(HapticAreaType.RightEar, args.Value * power);
                 }
             };
 
