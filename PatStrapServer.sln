@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatStrapServer", "PatStrapS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenXR", "OpenXR\OpenXR.csproj", "{4D73BD96-71AC-486D-95C8-070A229E824C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaApplication1", "AvaloniaApplication1\AvaloniaApplication1.csproj", "{CA55E436-4EF2-4C84-BC4A-0B7103AC8ACA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{4D73BD96-71AC-486D-95C8-070A229E824C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D73BD96-71AC-486D-95C8-070A229E824C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D73BD96-71AC-486D-95C8-070A229E824C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA55E436-4EF2-4C84-BC4A-0B7103AC8ACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA55E436-4EF2-4C84-BC4A-0B7103AC8ACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA55E436-4EF2-4C84-BC4A-0B7103AC8ACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA55E436-4EF2-4C84-BC4A-0B7103AC8ACA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

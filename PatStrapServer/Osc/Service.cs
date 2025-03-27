@@ -82,6 +82,7 @@ public class Service : BackgroundService
         
         _oscSender = new OscClient("127.0.0.1", 9000);
 
+        // todo: dynamically endpoint register
         
         oscQuery.AddEndpoint<float>("/avatar/parameters/pat_right", Attributes.AccessValues.WriteOnly);
         _oscReceiver.TryAddMethod("/avatar/parameters/pat_right",
@@ -90,6 +91,28 @@ public class Service : BackgroundService
                 var value = message.ReadFloatElement(0);
                 OnHapticTrigger?.Invoke(this, new HapticTriggerEventArgs("pat_right", value));
                 _logger.LogDebug($"pat_right {value}");
+            }
+        );
+
+        
+        oscQuery.AddEndpoint<float>("/avatar/parameters/pat_back", Attributes.AccessValues.WriteOnly);
+        _oscReceiver.TryAddMethod("/avatar/parameters/pat_back",
+            (message) =>
+            {
+                var value = message.ReadFloatElement(0);
+                OnHapticTrigger?.Invoke(this, new HapticTriggerEventArgs("pat_back", value));
+                _logger.LogDebug($"undefined_2 {value}");
+            }
+        );
+
+        
+        oscQuery.AddEndpoint<float>("/avatar/parameters/pat_back2", Attributes.AccessValues.WriteOnly);
+        _oscReceiver.TryAddMethod("/avatar/parameters/pat_back2",
+            (message) =>
+            {
+                var value = message.ReadFloatElement(0);
+                OnHapticTrigger?.Invoke(this, new HapticTriggerEventArgs("pat_back2", value));
+                _logger.LogDebug($"undefined_3 {value}");
             }
         );
         
@@ -124,7 +147,6 @@ public class Service : BackgroundService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("1");
                 OnHapticTrigger?.Invoke(f, new HapticTriggerEventArgs("pat_right", 1));
                 await Task.Delay(1000, stoppingToken);
             }        

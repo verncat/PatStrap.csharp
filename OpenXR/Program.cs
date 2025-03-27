@@ -78,14 +78,14 @@ class Program
             // result = xrCreateSession(instance, &sessionCreateInfo, &session);
             // checkResult(result, "Failed to create OpenXR session");
 
-            // var sessionCreateInfo = new XrSessionCreateInfo()
-            // {
-            //     type = XrStructureType.XR_TYPE_SESSION_CREATE_INFO,
-            //     systemId = systemId,
-            // };
+            var sessionCreateInfo = new XrSessionCreateInfo()
+            {
+                type = XrStructureType.XR_TYPE_SESSION_CREATE_INFO,
+                systemId = systemId,
+            };
 
-            // XrSession session;
-            // CheckResult(OpenXRNative.xrCreateSession(instance, &sessionCreateInfo, &session));
+            XrSession session;
+            CheckResult(OpenXRNative.xrCreateSession(instance, &sessionCreateInfo, &session));
 
 
             // fixed (byte* actionName = "my_haptic"u8,

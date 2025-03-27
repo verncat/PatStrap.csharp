@@ -1,0 +1,118 @@
+
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+        xmlns:avalonia="https://github.com/projektanker/icons.avalonia"
+        
+        Title="PatStrap Control" Width="400" 
+        x:Class="AvaloniaApplication1.MainWindow">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0">
+            <StackPanel Margin="20">
+                <TextBlock Text="Connection" FontSize="16" Margin="0,0,0,5"/>
+                
+                <StackPanel Orientation="Horizontal">
+                    <avalonia:Icon Value="fa-spinner" Width="15" Height="15" Animation="Spin" 
+                                   IsEnabled="{Binding IsShowProcessRing}"
+                                   IsVisible="{Binding IsShowProcessRing}" 
+                                   Margin="0,0,10,0"/>
+                    <avalonia:Icon Value="fa-check" Width="15" Height="15"
+                                   IsEnabled="{Binding IsConnected}"
+                                   IsVisible="{Binding IsConnected}"
+                                   Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding StatusText}"></TextBlock>
+                </StackPanel>
+                
+                <StackPanel Margin="0 5  0 15" Orientation="Horizontal">
+                    <avalonia:Icon Value="fa-spinner" Width="15" Height="15" Animation="Spin"
+                                   IsEnabled="{Binding IsShowProcessRingOscServer}"
+                                   IsVisible="{Binding IsShowProcessRingOscServer}"
+                                   Margin="0,0,10,0"/>
+                    <avalonia:Icon Value="fa-check" Width="15" Height="15"
+                                   IsEnabled="{Binding IsConnectedOscServer}"
+                                   IsVisible="{Binding IsConnectedOscServer}"
+                                   Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding StatusTextOscServer}"></TextBlock>
+                </StackPanel>
+                
+                <StackPanel IsEnabled="{Binding IsConnected}" IsVisible="{Binding IsConnected}">
+                    <TextBlock Text="Hardware" FontSize="16" Margin="0,0,0,5"/>
+                    
+                    <StackPanel Margin="0 15" Orientation="Horizontal">
+                        <avalonia:Icon Value="fa-battery-full" Width="15" Height="15" />
+                        <TextBlock Text="{Binding BatteryLevel}"></TextBlock>
+                        <TextBlock Text="%"></TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                
+                <TextBlock Text="Haptics" FontSize="16" Margin="0,0,0,10"/>
+
+                <ItemsControl Name="TrackersControl" IsEnabled="{Binding IsConnected}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                                <StackPanel Orientation="Vertical" Margin="0,10,0,10">
+                                    <Border BorderThickness="1 1 1 1"
+                                            BorderBrush="Gray" CornerRadius="5" >
+                                        <StackPanel Orientation="Vertical" Margin="15,15,15,0">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Name}" FontSize="14"/>
+                                                <avalonia:Icon IsEnabled="{Binding HasContactName}" Value="fa-arrow-left" Width="15" Height="15" Margin="5 0 5 0"  />
+                                                <TextBlock Text="{Binding ContactName}" FontSize="14"/>
+                                            </StackPanel>
+                                            <StackPanel Name="ContainerFull" IsVisible="{Binding IsContentExtended}">
+                                                <StackPanel Orientation="Vertical" Margin="0,5,0,0">
+                                                    <TextBlock Text="Min" FontSize="14"/>
+                                                    <Slider Minimum="0" Maximum="1" Margin="0" Value="{Binding MinValue, Mode=TwoWay}" 
+                                                        TickFrequency="1" Name="Min" Tag="{Binding}" ValueChanged="TrackBar_ValueChanged" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Vertical" Margin="0,5,0,0">
+                                                    <TextBlock Text="Max" FontSize="14"/>
+                                                    <Slider Minimum="0" Maximum="1" Margin="0" Value="{Binding MaxValue, Mode=TwoWay}" 
+                                                        TickFrequency="1" Name="Max" Tag="{Binding}" ValueChanged="TrackBar_ValueChanged" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Vertical" Margin="0,5,0,0">
+                                                    <TextBlock Text="Zero threshold" FontSize="14"/>
+                                                    <Slider Minimum="0" Maximum="1" Margin="0" Value="{Binding ZeroThreshold, Mode=TwoWay}" 
+                                                        TickFrequency="1" Name="ZeroThreshold" Tag="{Binding}" ValueChanged="TrackBar_ValueChanged" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Vertical" Margin="0,5,0,10">
+                                                    <TextBlock Text="Contact name" FontSize="14"/>
+                                                    <TextBox Text="{Binding ContactName, Mode=TwoWay}" Tag="{Binding}" TextChanged="TextBox_OnTextChanged" ></TextBox>
+                                                    <!-- <Slider Minimum="0" Maximum="1" Margin="0" Value="{Binding Value, Mode=TwoWay}"  -->
+                                                    <!--         TickFrequency="1" ValueChanged="TrackBar_ValueChanged" /> -->
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Vertical" Margin="0,5,0,0">
+                                                <TextBlock Text="{Binding ValueText}" FontSize="14"/>
+                                                <Slider IsEnabled="False" Minimum="0" Maximum="1" Margin="0" Value="{Binding Value, Mode=TwoWay}" 
+                                                        TickFrequency="1" IsHitTestVisible="False" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,15" Spacing="10">
+                                                <Button Click="Button_OnClick" IsVisible="{Binding !IsContentExtended}" Name="EditButton" Tag="{Binding}">Edit</Button>
+                                                <Button Click="Button_OnClick" IsVisible="{Binding IsContentExtended}" Name="RemoveButton" Tag="{Binding}">Remove</Button>
+                                                <Button Click="Button_OnClick" IsVisible="{Binding IsContentExtended}" Name="CollapseButton" Tag="{Binding}">Collapse</Button>
+                                                <Button Click="Button_OnClick" Name="TestButton" Tag="{Binding}">Test</Button>
+                                            </StackPanel>
+                                            
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        <Grid Grid.Row="1" Height="50" VerticalAlignment="Center">
+            <Button Name="AddButton" Margin="5" Click="AddButton_OnClick" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="150">Add</Button>
+        </Grid>
+    </Grid>
+</Window>

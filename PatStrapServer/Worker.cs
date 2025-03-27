@@ -46,14 +46,7 @@ public sealed class Worker(ILogger<Worker> logger,
         
             oscService.OnHapticTrigger += (sender, args) =>
             {
-                if (args.ContactName == "pat_left")
-                {
-                    patService.SetHapticValue(HapticAreaType.LeftEar, args.Value * power);
-                }
-                if (args.ContactName == "pat_right")
-                {
-                    patService.SetHapticValue(HapticAreaType.RightEar, args.Value * power);
-                }
+                patService.SetHapticValue(args.ContactName, args.Value);
             };
 
             patServiceLocator.RegisterListeners();
